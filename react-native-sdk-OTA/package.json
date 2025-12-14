@@ -1,0 +1,29 @@
+{
+  "name": "react-native-ota-updater",
+  "version": "1.0.0",
+  "description": "React Native SDK for OTA updates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "ota",
+    "updates",
+    "apk"
+  ],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react-native": ">=0.60.0"
+  },
+  "dependencies": {
+    "react-native-fs": "^2.20.0",
+    "@react-native-community/netinfo": "^11.0.0",
+    "react-native-install-apk": "^1.1.0"
+  },
+  "devDependencies": {
+    "react-native": "^0.72.0"
+  }
+}
+

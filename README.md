@@ -2,6 +2,12 @@
 
 A complete Over-The-Air (OTA) update management system for React Native Android apps. This solution allows you to upload, manage, and distribute APK updates and JavaScript bundles directly to your apps, bypassing Google Play Console restrictions.
 
+## Demo Video
+
+Watch the system in action: [YouTube Demo](https://www.youtube.com/watch?v=l2u8tQ5OeyY)
+
+See how a React Native app automatically detects, downloads, and installs new APK versions with real-time server logs and web console management.
+
 ## Features
 
 - **APK Management**: Upload and manage multiple versions of your React Native Android apps

@@ -82,9 +82,25 @@ router.get('/check',
         });
       }
 
-      // Construct download URL
+      // Construct download URLs
       const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const downloadUrl = `${baseUrl}/api/apks/${latestVersion.id}/download`;
+      const apkDownloadUrl = `${baseUrl}/api/apks/${latestVersion.id}/download`;
+      const bundleDownloadUrl = latestVersion.bundle_path 
+        ? `${baseUrl}/api/bundles/${latestVersion.id}/download`
+        : null;
+
+      // Calculate file sizes if files exist
+      const fs = require('fs');
+      let apkSize = null;
+      let bundleSize = null;
+
+      if (latestVersion.apk_path && fs.existsSync(latestVersion.apk_path)) {
+        apkSize = fs.statSync(latestVersion.apk_path).size;
+      }
+
+      if (latestVersion.bundle_path && fs.existsSync(latestVersion.bundle_path)) {
+        bundleSize = fs.statSync(latestVersion.bundle_path).size;
+      }
 
       res.json({
         updateAvailable: true,
@@ -93,8 +109,10 @@ router.get('/check',
           versionCode: latestVersion.version_code,
           updateType: latestVersion.update_type,
           releaseNotes: latestVersion.release_notes,
-          downloadUrl: downloadUrl,
-          size: null // Could be calculated from file if needed
+          downloadUrl: apkDownloadUrl, // For backward compatibility
+          bundleUrl: bundleDownloadUrl, // For bundle updates
+          apkSize: apkSize,
+          bundleSize: bundleSize
         }
       });
     } catch (error) {

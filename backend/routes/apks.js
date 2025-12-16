@@ -149,7 +149,7 @@ router.post('/upload',
         versionCode: parseInt(versionCode),
         updateType: finalUpdateType,
         apkPath: req.file.path,
-        bundlePath: null, // Will be set if JS bundle is uploaded separately
+        bundlePath: null, // Can be uploaded separately via /api/bundles/upload
         releaseNotes: releaseNotes || '',
         createdBy: req.user.id
       };
@@ -256,15 +256,33 @@ router.get('/:id/download', async (req, res, next) => {
   try {
     const version = await Version.findById(req.params.id);
     
-    if (!version || !version.apk_path) {
-      return res.status(404).json({ error: 'APK not found' });
+    console.log(`📥 [APK Download] Request for version ID: ${req.params.id}`);
+    
+    if (!version) {
+      console.log(`❌ [APK Download] Version ${req.params.id} not found in database`);
+      return res.status(404).json({ error: 'Version not found' });
+    }
+    
+    console.log(`📥 [APK Download] Version found: ${version.version_name} (${version.version_code})`);
+    console.log(`📥 [APK Download] APK path in DB: ${version.apk_path || 'null'}`);
+    
+    if (!version.apk_path) {
+      console.log(`❌ [APK Download] Version ${req.params.id} has no apk_path`);
+      return res.status(404).json({ error: 'APK not found - no file path in database' });
     }
 
     const filePath = path.resolve(version.apk_path);
+    console.log(`📥 [APK Download] Resolved file path: ${filePath}`);
+    console.log(`📥 [APK Download] File exists: ${fs.existsSync(filePath)}`);
     
     // Check if file exists
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'APK file not found on server' });
+      console.log(`❌ [APK Download] File does not exist at path: ${filePath}`);
+      console.log(`❌ [APK Download] Current working directory: ${process.cwd()}`);
+      return res.status(404).json({ 
+        error: 'APK file not found on server',
+        details: `File path: ${filePath}` 
+      });
     }
 
     // Get file stats for Content-Length header

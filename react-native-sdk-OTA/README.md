@@ -1,6 +1,18 @@
 # React Native OTA Updater SDK
 
-A React Native SDK for seamless Over-The-Air (OTA) updates. Supports both major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. Still not yet created npm package for it still under development. Will add the npm link once i have created the package react-native-ota-updater. 
+A React Native SDK for seamless Over-The-Air (OTA) updates. Supports both major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. 
+
+**NEW**: Now includes native Android module for true OTA bundle updates, compatible with both React Native's old architecture and new architecture (TurboModules).
+
+## Features
+
+- ✅ **Major Updates**: Automatic APK download and installation
+- ✅ **Minor Updates**: JavaScript bundle updates without app restart
+- ✅ **New Architecture Support**: Compatible with React Native TurboModules
+- ✅ **Auto-Installation**: Configurable automatic APK installation
+- ✅ **WiFi Control**: Force updates only on WiFi connection
+- ✅ **Progress Tracking**: Real-time download progress updates
+- ✅ **Error Handling**: Comprehensive error handling and reporting 
 
 ## Installation
 
@@ -12,11 +24,13 @@ yarn add react-native-ota-updater
 
 ### Native Dependencies
 
-This SDK requires native modules. Install them:
+This SDK includes a native Android module for bundle updates. Additional dependencies:
 
 ```bash
 npm install react-native-fs @react-native-community/netinfo react-native-install-apk
 ```
+
+**Note**: The native Android module is automatically linked via React Native's autolinking feature. See [ANDROID_SETUP.md](./ANDROID_SETUP.md) for manual setup instructions if needed.
 
 ### Android Setup
 
@@ -113,9 +127,13 @@ await updater.manualCheck();
 | `appId` | string | required | Your app's unique identifier |
 | `apiKey` | string | optional | API key for authentication |
 | `deviceId` | string | auto | Device identifier |
+| `currentVersionName` | string | required | Current app version name (e.g., "1.0.0") |
+| `currentVersionCode` | number | required | Current app version code (e.g., 1) |
 | `checkInterval` | number | 3600000 | Update check interval (ms) |
 | `forceUpdateOnWifi` | boolean | false | Force update when WiFi available |
 | `autoDownloadOnWifi` | boolean | false | Auto-download on WiFi |
+| `autoInstallApk` | boolean | true | Automatically install APK after download (default: true) |
+| `autoInstallOnWifi` | boolean | false | Only auto-install when connected to WiFi |
 | `onUpdateAvailable` | function | - | Called when update is available |
 | `onUpdateProgress` | function | - | Called during download |
 | `onUpdateComplete` | function | - | Called when update completes |
@@ -125,7 +143,7 @@ await updater.manualCheck();
 
 #### Major Updates (APK)
 - Full APK installation required
-- User is prompted to install
+- Auto-installs by default (can be disabled with `autoInstallApk: false`)
 - Can be forced on WiFi
 - Requires Android install permissions
 
@@ -142,6 +160,19 @@ When `forceUpdateOnWifi: true`:
 - Forces major updates immediately
 - Downloads and installs without user prompt
 - Ideal for internal/critical updates
+
+### Auto-Install APK
+
+When `autoInstallApk: true` (default):
+- APK automatically installs after download completes
+- No user prompt required (aggressive mode)
+- Installation starts immediately after download
+- Ideal for custom console/internal apps
+
+When `autoInstallOnWifi: true`:
+- Auto-install only occurs when connected to WiFi
+- Falls back to install prompt if not on WiFi
+- Useful for conserving mobile data
 
 ### Example: Custom Update Handler
 
@@ -207,9 +238,11 @@ const isWifi = await monitor.checkWifiAsync();
 - Verify APK file integrity
 
 ### Bundle Updates Not Applying
-- Requires native module `OTABundleLoader` (not included)
-- Consider using a library like `react-native-code-push` for bundle updates
-- Or implement custom native module for bundle loading
+- **Native module is now included!** The SDK includes a native Android module for bundle updates
+- Ensure the native module is properly linked (see [ANDROID_SETUP.md](./ANDROID_SETUP.md))
+- Check that bundle file name matches `index.android.bundle` (or your configured name)
+- Verify bundle path is correct in downloaded package
+- Check logs: `adb logcat | grep OTAUpdater`
 
 ### Update Checks Not Working
 - Verify API URL is correct and accessible

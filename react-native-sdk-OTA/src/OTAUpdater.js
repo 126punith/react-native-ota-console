@@ -15,6 +15,8 @@ class OTAUpdater {
       checkInterval: config.checkInterval || 3600000, // 1 hour default
       forceUpdateOnWifi: config.forceUpdateOnWifi || false,
       autoDownloadOnWifi: config.autoDownloadOnWifi || false,
+      autoInstallApk: config.autoInstallApk !== undefined ? config.autoInstallApk : true, // Default: true (aggressive mode)
+      autoInstallOnWifi: config.autoInstallOnWifi || false, // Only auto-install when connected to WiFi
       onUpdateAvailable: config.onUpdateAvailable || (() => {}),
       onUpdateProgress: config.onUpdateProgress || (() => {}),
       onUpdateComplete: config.onUpdateComplete || (() => {}),
@@ -146,10 +148,52 @@ class OTAUpdater {
       );
 
       if (force) {
+        // Force update - always auto-install
         this.apkDownloader.showForceUpdateAlert();
         await this.apkDownloader.installApk(filePath);
+      } else if (this.config.autoInstallApk) {
+        // Check WiFi requirement if autoInstallOnWifi is enabled
+        if (this.config.autoInstallOnWifi) {
+          const isWifi = await this.networkMonitor.checkWifiAsync();
+          if (isWifi) {
+            console.log('🚀 [OTAUpdater] Auto-installing APK (WiFi connected)...');
+            try {
+              await this.apkDownloader.installApk(filePath);
+            } catch (installError) {
+              console.error('❌ [OTAUpdater] Auto-install failed, falling back to prompt:', installError);
+              // Fall back to showing prompt if auto-install fails
+              this.apkDownloader.showInstallPrompt(
+                filePath,
+                update.versionName,
+                update.releaseNotes
+              );
+            }
+          } else {
+            // Not on WiFi - show prompt instead
+            console.log('⚠️ [OTAUpdater] Not on WiFi, showing install prompt...');
+            this.apkDownloader.showInstallPrompt(
+              filePath,
+              update.versionName,
+              update.releaseNotes
+            );
+          }
+        } else {
+          // Auto-install regardless of network type
+          console.log('🚀 [OTAUpdater] Auto-installing APK...');
+          try {
+            await this.apkDownloader.installApk(filePath);
+          } catch (installError) {
+            console.error('❌ [OTAUpdater] Auto-install failed, falling back to prompt:', installError);
+            // Fall back to showing prompt if auto-install fails
+            this.apkDownloader.showInstallPrompt(
+              filePath,
+              update.versionName,
+              update.releaseNotes
+            );
+          }
+        }
       } else {
-        // Show install prompt
+        // Default behavior - show prompt
         this.apkDownloader.showInstallPrompt(
           filePath,
           update.versionName,
@@ -181,13 +225,17 @@ class OTAUpdater {
 
   async handleMinorUpdate(update) {
     try {
-      // Note: Minor updates require bundle download URL from backend
-      // For now, this is a placeholder - you'll need to implement bundle serving
+      // Minor updates require bundle download URL from backend
+      // The backend now provides bundleUrl in the update response
       
       if (!update.bundleUrl) {
-        console.warn('Bundle URL not provided for minor update');
+        console.warn('⚠️ [OTAUpdater] Bundle URL not provided for minor update');
+        console.warn('   Update object:', update);
         return;
       }
+
+      console.log(`📦 [OTAUpdater] Starting minor update: ${update.versionName}`);
+      console.log(`   Bundle URL: ${update.bundleUrl}`);
 
       // Report status: downloading
       await this.versionChecker.reportUpdateStatus(
@@ -203,8 +251,12 @@ class OTAUpdater {
         update.versionName
       );
 
+      console.log(`✅ [OTAUpdater] Bundle downloaded: ${bundlePath}`);
+
       // Apply update
       await this.bundleUpdater.applyUpdate(bundlePath);
+
+      console.log(`✅ [OTAUpdater] Bundle update applied successfully`);
 
       // Clean up old bundles
       await this.bundleUpdater.clearOldBundles(update.versionName);
@@ -219,7 +271,7 @@ class OTAUpdater {
 
       this.config.onUpdateComplete(update);
     } catch (error) {
-      console.error('Minor update error:', error);
+      console.error('❌ [OTAUpdater] Minor update error:', error);
       await this.versionChecker.reportUpdateStatus(
         'failed',
         this.versionChecker.getCurrentVersion().versionName,

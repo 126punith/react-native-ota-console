@@ -229,64 +229,120 @@ class ApkDownloader {
   }
 
   async installApk(filePath) {
+    console.log('🚀 [ApkDownloader] installApk called with filePath:', filePath);
+    console.log('🚀 [ApkDownloader] Platform.OS:', Platform.OS);
+    
     try {
       if (Platform.OS !== 'android') {
         throw new Error('APK installation is only supported on Android');
       }
 
       // Check if file exists
+      console.log('🔍 [ApkDownloader] Checking if file exists:', filePath);
       const exists = await RNFS.exists(filePath);
+      console.log('🔍 [ApkDownloader] File exists:', exists);
       if (!exists) {
         throw new Error('APK file not found');
       }
 
-      // Request install permissions
-      if (Platform.Version >= 26) {
-        // Android 8.0+ requires INSTALL_PERMISSION
-        if (InstallApk) {
-          try {
-            await InstallApk.installApk(filePath);
-            return true;
-          } catch (installError) {
-            console.warn('InstallApk failed, using fallback:', installError);
+      // Try to use native module for direct installation (preferred method)
+      try {
+        const { NativeModules } = require('react-native');
+        
+        // Debug: Log all available native modules
+        console.log('🔍 [ApkDownloader] All available NativeModules:', Object.keys(NativeModules));
+        console.log('🔍 [ApkDownloader] NativeModules.OTANative:', NativeModules.OTANative);
+        console.log('🔍 [ApkDownloader] NativeModules type:', typeof NativeModules);
+        
+        // Try to access via NativeBundleManager to see if it's available there
+        try {
+          const NativeBundleManager = require('./NativeBundleManager').default;
+          console.log('🔍 [ApkDownloader] NativeBundleManager.isAvailable:', NativeBundleManager.isAvailable);
+          if (NativeBundleManager.isAvailable) {
+            console.log('🔍 [ApkDownloader] NativeBundleManager can access OTANative - checking methods');
+            try {
+              const config = await NativeBundleManager.getConfiguration();
+              console.log('🔍 [ApkDownloader] NativeBundleManager.getConfiguration result:', config);
+            } catch (configError) {
+              console.warn('⚠️ [ApkDownloader] getConfiguration failed:', configError.message);
+            }
           }
+        } catch (e) {
+          console.warn('⚠️ [ApkDownloader] Could not check NativeBundleManager:', e.message);
         }
         
-        // Fallback to system installer via intent
-        try {
-          const supported = await Linking.canOpenURL(`file://${filePath}`);
-          if (supported) {
-            await Linking.openURL(`file://${filePath}`);
-            return true;
-          } else {
-            // Try with content:// URI
-            const contentUri = `content://${filePath}`;
-            const contentSupported = await Linking.canOpenURL(contentUri);
-            if (contentSupported) {
-              await Linking.openURL(contentUri);
-              return true;
-            }
-            throw new Error('Unable to open APK file for installation');
-          }
-        } catch (linkError) {
-          throw new Error(`Installation failed: ${linkError.message}`);
-        }
-      } else {
-        // For older Android versions
-        if (InstallApk) {
-          await InstallApk.installApk(filePath);
+        const OTANative = NativeModules.OTANative;
+        
+        console.log('🔍 [ApkDownloader] Checking native module:', {
+          hasOTANativeModule: !!OTANative,
+          hasInstallMethod: OTANative ? !!OTANative.installApk : false,
+          filePath: filePath,
+          OTANativeType: typeof OTANative,
+          OTANativeValue: OTANative,
+          allNativeModuleKeys: Object.keys(NativeModules)
+        });
+        
+        if (OTANative && OTANative.installApk) {
+          console.log('📦 [ApkDownloader] Calling native installApk for:', filePath);
+          await OTANative.installApk(filePath);
+          console.log('✅ [ApkDownloader] Native installation intent launched successfully');
+          return true;
         } else {
-          // Fallback
-          const supported = await Linking.canOpenURL(`file://${filePath}`);
-          if (supported) {
-            await Linking.openURL(`file://${filePath}`);
-          } else {
-            throw new Error('Installation package not available');
+          console.warn('⚠️ [ApkDownloader] Native module or installApk method not available, trying fallback');
+        }
+      } catch (nativeError) {
+        console.error('❌ [ApkDownloader] Native installation error:', nativeError);
+        console.warn('⚠️ [ApkDownloader] Native installation failed, trying fallback:', nativeError.message);
+      }
+
+      // Fallback: Try FileProvider URI with Linking (Android 7.0+)
+      if (Platform.Version >= 24) {
+        try {
+          const { NativeModules } = require('react-native');
+          const OTANative = NativeModules.OTANative;
+          
+          if (OTANative && OTANative.getFileProviderUri) {
+            console.log('📦 [ApkDownloader] Trying FileProvider URI fallback');
+            const contentUri = await OTANative.getFileProviderUri(filePath);
+            console.log('📦 [ApkDownloader] Received FileProvider URI:', contentUri);
+            
+            if (contentUri && contentUri.startsWith('content://')) {
+              const supported = await Linking.canOpenURL(contentUri);
+              if (supported) {
+                console.log('🚀 [ApkDownloader] Opening URI for installation:', contentUri);
+                await Linking.openURL(contentUri);
+                console.log('✅ [ApkDownloader] Installation intent launched via URI');
+                return true;
+              }
+            }
           }
+        } catch (uriError) {
+          console.warn('⚠️ [ApkDownloader] FileProvider URI fallback failed:', uriError.message);
         }
       }
 
-      return true;
+      // Fallback: Try react-native-install-apk if available
+      if (InstallApk) {
+        try {
+          console.log('📦 [ApkDownloader] Trying react-native-install-apk fallback');
+          await InstallApk.installApk(filePath);
+          console.log('✅ [ApkDownloader] Installation via react-native-install-apk succeeded');
+          return true;
+        } catch (installError) {
+          console.warn('⚠️ [ApkDownloader] InstallApk failed:', installError);
+        }
+      }
+
+      // Last resort: Try file:// URI (may fail on Android 7.0+)
+      console.log('📦 [ApkDownloader] Trying file:// URI as last resort');
+      const supported = await Linking.canOpenURL(`file://${filePath}`);
+      if (supported) {
+        await Linking.openURL(`file://${filePath}`);
+        console.log('✅ [ApkDownloader] Installation intent launched via file:// URI');
+        return true;
+      }
+
+      throw new Error('Unable to open APK file for installation. All installation methods failed.');
     } catch (error) {
       console.error('APK installation error:', error);
       throw error;

@@ -1,4 +1,5 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, DeviceEventEmitter } from 'react-native';
+import NativeBundleManager from './NativeBundleManager';
 
 // Optional import
 let RNFS = null;
@@ -14,20 +15,48 @@ class BundleUpdater {
     this.onError = config.onError || (() => {});
     this.onSuccess = config.onSuccess || (() => {});
     this.bundleCacheDir = RNFS ? `${RNFS.CachesDirectoryPath}/OTA_Bundles` : '/tmp/OTA_Bundles';
+    this.useNativeModule = NativeBundleManager.isAvailable && Platform.OS === 'android';
+    
+    // Set up download progress listener if native module is available
+    if (this.useNativeModule) {
+      DeviceEventEmitter.addListener('OTADownloadProgress', (progress) => {
+        const progressPercent = progress.totalBytes > 0 
+          ? (progress.receivedBytes / progress.totalBytes) * 100 
+          : 0;
+        this.onProgress(progressPercent, progress.receivedBytes, progress.totalBytes);
+      });
+    }
   }
 
   async ensureCacheDir() {
-    if (!RNFS) {
-      throw new Error('react-native-fs is required for bundle updates');
+    if (!RNFS && !this.useNativeModule) {
+      throw new Error('react-native-fs is required for bundle updates when native module is not available');
     }
+    if (RNFS) {
     const exists = await RNFS.exists(this.bundleCacheDir);
     if (!exists) {
       await RNFS.mkdir(this.bundleCacheDir);
+      }
     }
   }
 
   async downloadBundle(downloadUrl, versionName) {
     try {
+      // Use native module if available (Android only)
+      if (this.useNativeModule) {
+        console.log('📦 [BundleUpdater] Using native module for bundle download');
+        const packageInfo = await NativeBundleManager.downloadBundle(downloadUrl, versionName);
+        
+        // Get bundle path from package info
+        const bundlePath = packageInfo?.bundlePath || packageInfo?.relativeBundlePath;
+        if (bundlePath) {
+          this.onSuccess(bundlePath);
+          return bundlePath;
+        }
+        throw new Error('Bundle path not found in package info');
+      }
+
+      // Fallback to RNFS download
       await this.ensureCacheDir();
 
       const fileName = `bundle-${versionName}.bundle`;
@@ -67,20 +96,20 @@ class BundleUpdater {
 
   async loadBundle(bundlePath) {
     try {
-      // In React Native, you typically need native module support to load bundles
-      // This is a placeholder - actual implementation depends on your bundler setup
-      
-      // For Metro bundler, you might need to:
-      // 1. Register the bundle with Metro
-      // 2. Reload the app or specific modules
-      
-      // Example using a hypothetical native module:
+      // Use native module if available (Android only)
+      if (this.useNativeModule) {
+        console.log('🔄 [BundleUpdater] Using native module to load bundle');
+        await NativeBundleManager.loadBundle(bundlePath);
+        return true;
+      }
+
+      // Fallback: try OTABundleLoader if available
       if (NativeModules.OTABundleLoader) {
         await NativeModules.OTABundleLoader.loadBundle(bundlePath);
         return true;
       } else {
         // Fallback: restart app with new bundle
-        console.warn('Native bundle loader not available. App restart required.');
+        console.warn('⚠️ [BundleUpdater] Native bundle loader not available. App restart required.');
         return false;
       }
     } catch (error) {
@@ -91,11 +120,23 @@ class BundleUpdater {
 
   async applyUpdate(bundlePath) {
     try {
-      // Set the new bundle as active
+      // Use native module if available
+      if (this.useNativeModule) {
+        console.log('✅ [BundleUpdater] Using native module to apply update');
+        // Install the bundle first
+        await NativeBundleManager.installBundle(bundlePath);
+        // Then load it
+        await NativeBundleManager.loadBundle(bundlePath);
+        return true;
+      }
+
+      // Fallback to file-based approach
       const activeBundlePath = `${this.bundleCacheDir}/active.bundle`;
       
       // Copy downloaded bundle to active bundle
+      if (RNFS) {
       await RNFS.copyFile(bundlePath, activeBundlePath);
+      }
 
       // Load the new bundle
       await this.loadBundle(activeBundlePath);
@@ -113,12 +154,21 @@ class BundleUpdater {
 
   async clearOldBundles(keepVersion = null) {
     try {
+      // Use native module if available
+      if (this.useNativeModule) {
+        await NativeBundleManager.clearBundles();
+        return;
+      }
+
+      // Fallback to file-based cleanup
+      if (RNFS) {
       await this.ensureCacheDir();
       const files = await RNFS.readDir(this.bundleCacheDir);
       
       for (const file of files) {
         if (file.name !== 'active.bundle' && file.name !== `bundle-${keepVersion}.bundle`) {
           await RNFS.unlink(file.path);
+          }
         }
       }
     } catch (error) {

@@ -10,6 +10,7 @@ const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const apkRoutes = require('./routes/apks');
 const updateRoutes = require('./routes/updates');
+const bundleRoutes = require('./routes/bundles');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/apks', apkRoutes);
 app.use('/api/updates', updateRoutes);
+app.use('/api/bundles', bundleRoutes);
 
 // Health check
 app.get('/health', async (req, res) => {

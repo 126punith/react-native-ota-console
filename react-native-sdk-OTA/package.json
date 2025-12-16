@@ -1,19 +1,43 @@
 {
   "name": "react-native-ota-updater",
   "version": "1.0.0",
-  "description": "React Native SDK for OTA updates",
+  "description": "React Native SDK for seamless Over-The-Air (OTA) updates. Supports both major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. Compatible with React Native old and new architecture (TurboModules).",
   "main": "index.js",
+  "files": [
+    "android",
+    "src",
+    "index.js",
+    "react-native.config.js",
+    "README.md",
+    "ANDROID_SETUP.md",
+    "TESTING.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "react-native",
     "ota",
+    "over-the-air",
     "updates",
-    "apk"
+    "apk",
+    "bundle",
+    "hot-update",
+    "code-push",
+    "turbo-modules",
+    "new-architecture"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/126punith/react-native-ota-console.git",
+    "directory": "react-native-sdk-OTA"
+  },
+  "bugs": {
+    "url": "https://github.com/126punith/react-native-ota-console/issues"
+  },
+  "homepage": "https://github.com/126punith/react-native-ota-console#readme",
   "peerDependencies": {
     "react-native": ">=0.60.0"
   },
@@ -24,6 +48,12 @@
   },
   "devDependencies": {
     "react-native": "^0.72.0"
+  },
+  "react-native": {
+    "android": {
+      "sourceDir": "./android",
+      "packageImportPath": "import com.otaupdater.react.OTAPackage;"
+    }
   }
 }
 

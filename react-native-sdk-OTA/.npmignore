@@ -21,6 +21,11 @@ dist/
 # Node modules (will be installed by users)
 node_modules/
 
+# Functions build artifacts and local config (users run npm install + npm run build in functions/)
+functions/lib/
+functions/node_modules/
+functions/.env
+
 # Git
 .git/
 .gitignore

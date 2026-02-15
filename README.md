@@ -1,6 +1,6 @@
 # React Native OTA Update Console
 
-A complete Over-The-Air (OTA) update management system for React Native Android apps. This solution allows you to upload, manage, and distribute APK updates and JavaScript bundles directly to your apps, bypassing Google Play Console restrictions.
+A complete Over-The-Air (OTA) update management system for React Native Android apps. This solution allows you to upload, manage, and distribute APK updates and JavaScript bundles directly to your apps, bypassing Google Play Console restrictions. OTA updates are controlled via **Firebase** (Storage, Cloud Functions, Remote Config) for seamless distribution.
 
 ## Demo Video
 
@@ -17,6 +17,7 @@ See how a React Native app automatically detects, downloads, and installs new AP
 - **Version Control**: Track and manage app versions with release notes
 - **Web Console**: Beautiful web interface for managing uploads and versions
 - **React Native SDK**: Easy-to-integrate SDK for your React Native apps
+- **Firebase Backend**: Optional Firebase integration (Storage + Cloud Functions + Remote Config) for OTA control
 
 ## Project Structure
 
@@ -24,7 +25,7 @@ See how a React Native app automatically detects, downloads, and installs new AP
 console_project/
 ├── backend/              # Node.js/Express API server
 ├── frontend/             # React web console
-├── react-native-ota-sdk/ # React Native SDK for apps (under development)
+├── react-native-ota-sdk/ # React Native SDK ([npm](https://www.npmjs.com/package/react-native-ota-sdk) | [README](react-native-ota-sdk/README.md))
 └── database/             # Database migrations
 ```
 
@@ -84,22 +85,10 @@ The frontend will run on `http://localhost:3000`
 
 ### 4. Using the SDK in Your React Native App
 
-**Note:** The SDK is currently under development and not yet published to npm. For local development:
+The SDK is published on npm: **[react-native-ota-sdk](https://www.npmjs.com/package/react-native-ota-sdk)**
 
 ```bash
-cd react-native-ota-sdk
-npm install
-
-# Link the package locally (from SDK directory)
-npm link
-
-# Then in your React Native app:
-npm link react-native-ota-updater
-```
-
-Once published, installation will be:
-```bash
-npm install react-native-ota-updater
+npm install react-native-ota-sdk
 ```
 
 See [React Native SDK README](react-native-ota-sdk/README.md) for detailed integration instructions.
@@ -115,10 +104,10 @@ See [React Native SDK README](react-native-ota-sdk/README.md) for detailed integ
 
 ### SDK Integration
 
-**Note:** The SDK (`react-native-ota-updater`) is currently under development. Use `npm link` for local development until the package is published.
+The SDK (`react-native-ota-sdk`) supports both custom API and Firebase backends. Install from [npm](https://www.npmjs.com/package/react-native-ota-sdk).
 
 ```javascript
-import { OTAUpdater } from 'react-native-ota-updater';
+import { OTAUpdater } from 'react-native-ota-sdk';
 
 const updater = new OTAUpdater({
   apiUrl: 'http://your-server.com/api',

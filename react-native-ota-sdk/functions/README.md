@@ -24,7 +24,7 @@ In your React Native app root, create or update `firebase.json`:
 ```json
 {
   "functions": {
-    "source": "node_modules/react-native-ota-updater/functions"
+    "source": "node_modules/react-native-ota-sdk/functions"
   }
 }
 ```
@@ -32,7 +32,7 @@ In your React Native app root, create or update `firebase.json`:
 ### 2. Install dependencies
 
 ```bash
-cd node_modules/react-native-ota-updater/functions
+cd node_modules/react-native-ota-sdk/functions
 npm install
 ```
 
@@ -81,7 +81,7 @@ firebase deploy --only functions
 Or from the functions directory:
 
 ```bash
-cd node_modules/react-native-ota-updater/functions
+cd node_modules/react-native-ota-sdk/functions
 npm run deploy
 ```
 
@@ -113,7 +113,7 @@ Use `@react-native-firebase/remote-config` in your app. The function expects you
 - `apk_url` – download URL for the APK
 - `update_message` – message shown to users
 
-See the main [react-native-ota-updater README](../README.md) for app-side integration.
+See the main [react-native-ota-sdk README](../README.md) for app-side integration.
 
 ## Troubleshooting
 

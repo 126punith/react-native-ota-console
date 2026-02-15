@@ -142,9 +142,9 @@ flowchart TD
 ## Installation
 
 ```bash
-npm install react-native-ota-updater
+npm install react-native-ota-sdk
 # or
-yarn add react-native-ota-updater
+yarn add react-native-ota-sdk
 ```
 
 ### Native Dependencies
@@ -185,7 +185,7 @@ android {
 
 ```javascript
 import React, { useEffect } from 'react';
-import { OTAUpdater } from 'react-native-ota-updater';
+import { OTAUpdater } from 'react-native-ota-sdk';
 
 function App() {
   useEffect(() => {
@@ -219,7 +219,7 @@ function App() {
 ```json
 {
   "functions": {
-    "source": "node_modules/react-native-ota-updater/functions"
+    "source": "node_modules/react-native-ota-sdk/functions"
   }
 }
 ```
@@ -227,7 +227,7 @@ function App() {
 2. Install and deploy:
 
 ```bash
-cd node_modules/react-native-ota-updater/functions
+cd node_modules/react-native-ota-sdk/functions
 npm install
 firebase deploy --only functions
 ```
@@ -259,7 +259,7 @@ firebase deploy --only functions
 ### VersionChecker
 
 ```javascript
-import { VersionChecker } from 'react-native-ota-updater';
+import { VersionChecker } from 'react-native-ota-sdk';
 
 const checker = new VersionChecker({ apiUrl, appId, apiKey });
 const result = await checker.checkForUpdates();
@@ -269,7 +269,7 @@ if (result.updateAvailable) console.log(result.update);
 ### NetworkMonitor
 
 ```javascript
-import { NetworkMonitor } from 'react-native-ota-updater';
+import { NetworkMonitor } from 'react-native-ota-sdk';
 
 const monitor = new NetworkMonitor();
 monitor.startMonitoring((isWifi, isConnected) => { /* ... */ });

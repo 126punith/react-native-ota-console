@@ -22,10 +22,10 @@ cd TestOTAApp
 
 ```bash
 # If using local path
-npm install ../react-native-sdk-OTA
+npm install ../react-native-ota-sdk
 
 # Or if published
-npm install react-native-ota-updater
+npm install react-native-ota-sdk
 ```
 
 ### Link Native Module
@@ -66,8 +66,8 @@ Create `App.js`:
 ```javascript
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ScrollView, StyleSheet } from 'react-native';
-import { OTAUpdater } from 'react-native-ota-updater';
-import NativeBundleManager from 'react-native-ota-updater/src/NativeBundleManager';
+import { OTAUpdater } from 'react-native-ota-sdk';
+import NativeBundleManager from 'react-native-ota-sdk/src/NativeBundleManager';
 
 export default function App() {
   const [logs, setLogs] = useState([]);

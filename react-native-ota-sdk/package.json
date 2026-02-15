@@ -1,5 +1,5 @@
 {
-  "name": "react-native-ota-updater",
+  "name": "react-native-ota-sdk",
   "version": "1.0.0",
   "description": "React Native SDK for seamless Over-The-Air (OTA) updates. Supports major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. Optional Firebase backend: upload APK to Storage → Cloud Function updates Remote Config → app fetches config. No server needed. Compatible with React Native old and new architecture (TurboModules).",
   "main": "index.js",
@@ -35,7 +35,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/126punith/react-native-ota-console.git",
-    "directory": "react-native-sdk-OTA"
+    "directory": "react-native-ota-sdk"
   },
   "bugs": {
     "url": "https://github.com/126punith/react-native-ota-console/issues"

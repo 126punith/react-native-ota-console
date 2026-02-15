@@ -24,7 +24,7 @@ See how a React Native app automatically detects, downloads, and installs new AP
 console_project/
 ├── backend/              # Node.js/Express API server
 ├── frontend/             # React web console
-├── react-native-sdk-OTA/ # React Native SDK for apps (under development)
+├── react-native-ota-sdk/ # React Native SDK for apps (under development)
 └── database/             # Database migrations
 ```
 
@@ -87,7 +87,7 @@ The frontend will run on `http://localhost:3000`
 **Note:** The SDK is currently under development and not yet published to npm. For local development:
 
 ```bash
-cd react-native-sdk-OTA
+cd react-native-ota-sdk
 npm install
 
 # Link the package locally (from SDK directory)
@@ -102,7 +102,7 @@ Once published, installation will be:
 npm install react-native-ota-updater
 ```
 
-See [React Native SDK README](react-native-sdk-OTA/README.md) for detailed integration instructions.
+See [React Native SDK README](react-native-ota-sdk/README.md) for detailed integration instructions.
 
 ## Usage
 

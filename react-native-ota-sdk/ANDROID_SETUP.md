@@ -9,9 +9,9 @@ The module uses React Native's autolinking feature. If you're using React Native
 ### 1. Install the SDK
 
 ```bash
-npm install react-native-ota-updater
+npm install react-native-ota-sdk
 # or
-yarn add react-native-ota-updater
+yarn add react-native-ota-sdk
 ```
 
 ### 2. Rebuild the Android App
@@ -30,8 +30,8 @@ If autolinking doesn't work, you can manually link the module:
 ### 1. Add to `android/settings.gradle`
 
 ```gradle
-include ':react-native-ota-updater'
-project(':react-native-ota-updater').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ota-updater/android')
+include ':react-native-ota-sdk'
+project(':react-native-ota-sdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ota-sdk/android')
 ```
 
 ### 2. Add to `android/app/build.gradle`
@@ -39,7 +39,7 @@ project(':react-native-ota-updater').projectDir = new File(rootProject.projectDi
 ```gradle
 dependencies {
     ...
-    implementation project(':react-native-ota-updater')
+    implementation project(':react-native-ota-sdk')
 }
 ```
 
@@ -74,7 +74,7 @@ The module requires internet permission, which should already be in your `Androi
 The native module is automatically used when available. The JavaScript SDK will fall back to file-based updates if the native module is not available.
 
 ```javascript
-import { OTAUpdater } from 'react-native-ota-updater';
+import { OTAUpdater } from 'react-native-ota-sdk';
 
 // The native module is used automatically for bundle updates
 const updater = new OTAUpdater({
@@ -91,7 +91,7 @@ const updater = new OTAUpdater({
 If you get "OTANative module is not available":
 1. Make sure you've rebuilt the app after installing
 2. Check that `OTAPackage` is registered in `MainApplication.java`
-3. Verify the module is in `node_modules/react-native-ota-updater/android`
+3. Verify the module is in `node_modules/react-native-ota-sdk/android`
 
 ### Bundle Not Loading
 

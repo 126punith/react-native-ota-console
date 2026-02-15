@@ -1,7 +1,7 @@
 {
-  "name": "react-native-ota-updater-functions",
+  "name": "react-native-ota-sdk-functions",
   "version": "1.0.0",
-  "description": "Firebase Cloud Functions for react-native-ota-updater - auto-updates Remote Config when APK is uploaded to Storage",
+  "description": "Firebase Cloud Functions for react-native-ota-sdk - auto-updates Remote Config when APK is uploaded to Storage",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",

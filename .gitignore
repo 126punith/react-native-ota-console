@@ -2,6 +2,9 @@
 node_modules/
 */node_modules/
 
+# npm auth (may contain tokens)
+.npmrc
+
 # Environment variables
 .env
 .env.local

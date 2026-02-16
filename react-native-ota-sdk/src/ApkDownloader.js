@@ -2,7 +2,6 @@ import { Platform, Alert, Linking } from 'react-native';
 
 // Optional imports - handle gracefully if not available
 let RNFS = null;
-let InstallApk = null;
 
 try {
   RNFS = require('react-native-fs');
@@ -11,9 +10,9 @@ try {
 }
 
 try {
-  InstallApk = require('react-native-install-apk');
+  require('@isudaji/react-native-install-apk');
 } catch (e) {
-  console.warn('react-native-install-apk not available, using fallback');
+  console.warn('@isudaji/react-native-install-apk not available, using fallback');
 }
 
 class ApkDownloader {
@@ -321,15 +320,16 @@ class ApkDownloader {
         }
       }
 
-      // Fallback: Try react-native-install-apk if available
-      if (InstallApk) {
+      // Fallback: Try @isudaji/react-native-install-apk if available (NativeModules.InstallApk.install)
+      const { NativeModules: NM } = require('react-native');
+      if (NM.InstallApk && typeof NM.InstallApk.install === 'function') {
         try {
-          console.log('📦 [ApkDownloader] Trying react-native-install-apk fallback');
-          await InstallApk.installApk(filePath);
-          console.log('✅ [ApkDownloader] Installation via react-native-install-apk succeeded');
+          console.log('📦 [ApkDownloader] Trying @isudaji/react-native-install-apk fallback');
+          await NM.InstallApk.install(filePath);
+          console.log('✅ [ApkDownloader] Installation via InstallApk.install succeeded');
           return true;
         } catch (installError) {
-          console.warn('⚠️ [ApkDownloader] InstallApk failed:', installError);
+          console.warn('⚠️ [ApkDownloader] InstallApk.install failed:', installError);
         }
       }
 

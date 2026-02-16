@@ -1,7 +1,7 @@
 {
   "name": "react-native-ota-sdk",
   "version": "1.0.0",
-  "description": "React Native SDK for seamless Over-The-Air (OTA) updates. Supports major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. Optional Firebase backend: upload APK to Storage → Cloud Function updates Remote Config → app fetches config. No server needed. Compatible with React Native old and new architecture (TurboModules).",
+  "description": "React Native SDK for seamless Over-The-Air (OTA) updates. Supports major APK updates and minor JavaScript bundle updates with WiFi force-update capabilities. Optional Firebase backend: upload APK to Storage \u2192 Cloud Function updates Remote Config \u2192 app fetches config. No server needed. Compatible with React Native old and new architecture (TurboModules).",
   "main": "index.js",
   "files": [
     "android",
@@ -47,7 +47,7 @@
   "dependencies": {
     "react-native-fs": "^2.20.0",
     "@react-native-community/netinfo": "^11.0.0",
-    "react-native-install-apk": "^1.1.0"
+    "@isudaji/react-native-install-apk": "^1.0.5"
   },
   "devDependencies": {
     "react-native": "^0.72.0"
